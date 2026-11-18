@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="ExpenseFlow - A premium personal expense tracker to manage your income, expenses, budgets and analytics." />
+  <title>ExpenseFlow — Smart Personal Expense Tracker</title>
+
+  <!-- Google Fonts: Poppins + Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- ===== App Shell ===== -->
+  <div class="app">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__logo">
+        <span class="logo-badge"><i data-lucide="wallet"></i></span>
+        <div class="logo-text">
+          <h1>ExpenseFlow</h1>
+          <p>Smart Finance</p>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav">
+        <p class="nav-label">Menu</p>
+        <a href="#" class="nav-item active" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+        <a href="#" class="nav-item" data-page="transactions"><i data-lucide="arrow-left-right"></i><span>Transactions</span></a>
+        <a href="#" class="nav-item" data-page="income"><i data-lucide="trending-up"></i><span>Income</span></a>
+        <a href="#" class="nav-item" data-page="expenses"><i data-lucide="trending-down"></i><span>Expenses</span></a>
+        <a href="#" class="nav-item" data-page="categories"><i data-lucide="tags"></i><span>Categories</span></a>
+        <a href="#" class="nav-item" data-page="budgets"><i data-lucide="piggy-bank"></i><span>Budgets</span></a>
+        <a href="#" class="nav-item" data-page="analytics"><i data-lucide="bar-chart-3"></i><span>Analytics</span></a>
+        <a href="#" class="nav-item" data-page="settings"><i data-lucide="settings"></i><span>Settings</span></a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <div class="sidebar-card">
+          <i data-lucide="sparkles"></i>
+          <h4>Stay on budget</h4>
+          <p>Track every rupee and grow your savings.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- overlay for mobile sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- ===== Main ===== -->
+    <main class="main">
+
+      <!-- Header -->
+      <header class="header">
+        <div class="header__left">
+          <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Toggle menu"><i data-lucide="menu"></i></button>
+          <div class="welcome">
+            <h2 id="welcomeMsg">Welcome back 👋</h2>
+            <p id="currentDate"></p>
+          </div>
+        </div>
+
+        <div class="header__right">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="globalSearch" placeholder="Search transactions..." autocomplete="off" />
+          </div>
+          <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+            <i data-lucide="bell"></i>
+            <span class="badge-dot" id="notifDot"></span>
+          </button>
+          <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <i data-lucide="sun" class="theme-icon-light"></i>
+            <i data-lucide="moon" class="theme-icon-dark"></i>
+          </button>
+          <div class="profile">
+            <div class="avatar">L</div>
+            <div class="profile-info">
+              <span class="profile-name">Lavkush</span>
+              <span class="profile-role">Premium</span>
+            </div>
+          </div>
+          <button class="btn btn-primary add-btn" id="addTransactionBtn"><i data-lucide="plus"></i><span>Add Transaction</span></button>
+        </div>
+      </header>
+
+      <div class="content" id="content">
+
+        <!-- ============ DASHBOARD PAGE ============ -->
+        <section class="page active" id="page-dashboard" data-page="dashboard">
+          <!-- Summary cards -->
+          <div class="cards-grid">
+            <div class="card stat-card balance">
+              <div class="stat-card__top">
+                <div class="stat-icon"><i data-lucide="wallet"></i></div>
+                <span class="stat-change" id="balanceChange">+0%</span>
+              </div>
+              <p class="stat-label">Total Balance</p>
+              <h3 class="stat-value" id="totalBalance">₹0</h3>
+              <p class="stat-sub" id="balanceSub">vs last month</p>
+            </div>
+            <div class="card stat-card income">
+              <div class="stat-card__top">
+                <div class="stat-icon"><i data-lucide="trending-up"></i></div>
+                <span class="stat-change" id="incomeChange">+0%</span>
+              </div>
+              <p class="stat-label">Total Income</p>
+              <h3 class="stat-value" id="totalIncome">₹0</h3>
+              <p class="stat-sub" id="incomeSub">vs last month</p>
+            </div>
+            <div class="card stat-card expense">
+              <div class="stat-card__top">
+                <div class="stat-icon"><i data-lucide="trending-down"></i></div>
+                <span class="stat-change" id="expenseChange">+0%</span>
+              </div>
+              <p class="stat-label">Total Expenses</p>
+              <h3 class="stat-value" id="totalExpenses">₹0</h3>
+              <p class="stat-sub" id="expenseSub">vs last month</p>
+            </div>
+            <div class="card stat-card savings">
+              <div class="stat-card__top">
+                <div class="stat-icon"><i data-lucide="piggy-bank"></i></div>
+                <span class="stat-change" id="savingsRate">0%</span>
+              </div>
+              <p class="stat-label">Total Savings</p>
+              <h3 class="stat-value" id="totalSavings">₹0</h3>
+              <p class="stat-sub">Savings rate</p>
+            </div>
+          </div>
+
+          <!-- Charts row -->
+          <div class="grid-2">
+            <div class="card chart-card">
+              <div class="card-head">
+                <h3>Income vs Expenses</h3>
+                <div class="date-filter" id="dashDateFilter">
+                  <button class="chip active" data-range="all">All</button>
+                  <button class="chip" data-range="7d">7D</button>
+                  <button class="chip" data-range="30d">30D</button>
+                  <button class="chip" data-range="month">Month</button>
+                  <button class="chip" data-range="year">Year</button>
+                </div>
+              </div>
+              <div class="chart-wrap"><canvas id="incomeExpenseChart"></canvas></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-head"><h3>Expense Categories</h3></div>
+              <div class="chart-wrap"><canvas id="categoryChart"></canvas></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card chart-card">
+              <div class="card-head"><h3>Monthly Spending Trend</h3></div>
+              <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-head"><h3>Savings Overview</h3></div>
+              <div class="chart-wrap"><canvas id="savingsChart"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Recent transactions -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Recent Transactions</h3>
+              <button class="btn btn-ghost btn-sm" data-nav="transactions">View all <i data-lucide="arrow-right"></i></button>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th><th>Category</th><th>Date</th><th>Method</th><th>Type</th><th>Amount</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recentTransactionsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ TRANSACTIONS PAGE ============ -->
+        <section class="page" id="page-transactions" data-page="transactions">
+          <div class="page-head">
+            <div>
+              <h2>Transactions</h2>
+              <p class="muted">Manage all your income and expense records.</p>
+            </div>
+            <button class="btn btn-primary" id="addTxPageBtn"><i data-lucide="plus"></i> Add Transaction</button>
+          </div>
+
+          <div class="card">
+            <div class="toolbar">
+              <div class="search-box toolbar-search">
+                <i data-lucide="search"></i>
+                <input type="text" id="txSearch" placeholder="Search by name or category..." autocomplete="off" />
+              </div>
+              <div class="filter-group">
+                <select id="txTypeFilter" class="select">
+                  <option value="all">All Types</option>
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+                <select id="txCategoryFilter" class="select">
+                  <option value="all">All Categories</option>
+                </select>
+                <select id="txDateFilter" class="select">
+                  <option value="all">All Time</option>
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                  <option value="month">This Month</option>
+                  <option value="lastmonth">Last Month</option>
+                  <option value="year">This Year</option>
+                </select>
+                <select id="txSort" class="select">
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="highest">Highest Amount</option>
+                  <option value="lowest">Lowest Amount</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th><th>Category</th><th>Date</th><th>Method</th><th>Type</th><th>Amount</th><th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="transactionsBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="txEmpty" hidden>
+              <i data-lucide="inbox"></i>
+              <h4>No transactions found</h4>
+              <p>Try adjusting your filters or add a new transaction.</p>
+            </div>
+            <div class="table-footer">
+              <span id="txCount" class="muted small">Showing 0 transactions</span>
+              <div class="export-group">
+                <button class="btn btn-ghost btn-sm" id="exportCsvBtn"><i data-lucide="download"></i> Export CSV</button>
+                <button class="btn btn-ghost btn-sm" id="printReportBtn"><i data-lucide="printer"></i> Print Report</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ INCOME PAGE ============ -->
+        <section class="page" id="page-income" data-page="income">
+          <div class="page-head">
+            <div>
+              <h2>Income</h2>
+              <p class="muted">Track all your sources of income.</p>
+            </div>
+            <button class="btn btn-primary" id="addIncomeBtn"><i data-lucide="plus"></i> Add Income</button>
+          </div>
+          <div class="cards-grid cards-grid-3">
+            <div class="card stat-card income">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="trending-up"></i></div></div>
+              <p class="stat-label">Total Income</p>
+              <h3 class="stat-value" id="incomeTotal">₹0</h3>
+            </div>
+            <div class="card stat-card balance">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="calendar-days"></i></div></div>
+              <p class="stat-label">Income This Month</p>
+              <h3 class="stat-value" id="incomeMonth">₹0</h3>
+            </div>
+            <div class="card stat-card savings">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="list"></i></div></div>
+              <p class="stat-label">Income Entries</p>
+              <h3 class="stat-value" id="incomeCount">0</h3>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Income Records</h3><span class="badge badge-success" id="incomeCountBadge">0</span></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Name</th><th>Category</th><th>Date</th><th>Method</th><th>Amount</th><th>Actions</th></tr></thead>
+                <tbody id="incomeBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="incomeEmpty" hidden>
+              <i data-lucide="inbox"></i><h4>No income records</h4><p>Add your first income entry.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ EXPENSES PAGE ============ -->
+        <section class="page" id="page-expenses" data-page="expenses">
+          <div class="page-head">
+            <div>
+              <h2>Expenses</h2>
+              <p class="muted">Track all your spending.</p>
+            </div>
+            <button class="btn btn-primary" id="addExpenseBtn"><i data-lucide="plus"></i> Add Expense</button>
+          </div>
+          <div class="cards-grid cards-grid-3">
+            <div class="card stat-card expense">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="trending-down"></i></div></div>
+              <p class="stat-label">Total Expenses</p>
+              <h3 class="stat-value" id="expenseTotal">₹0</h3>
+            </div>
+            <div class="card stat-card balance">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="calendar-days"></i></div></div>
+              <p class="stat-label">Spent This Month</p>
+              <h3 class="stat-value" id="expenseMonth">₹0</h3>
+            </div>
+            <div class="card stat-card savings">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="list"></i></div></div>
+              <p class="stat-label">Avg Daily Spending</p>
+              <h3 class="stat-value" id="expenseAvgDaily">₹0</h3>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Expense Records</h3><span class="badge badge-danger" id="expenseCountBadge">0</span></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead><tr><th>Name</th><th>Category</th><th>Date</th><th>Method</th><th>Amount</th><th>Actions</th></tr></thead>
+                <tbody id="expenseBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="expenseEmpty" hidden>
+              <i data-lucide="inbox"></i><h4>No expense records</h4><p>Add your first expense entry.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ CATEGORIES PAGE ============ -->
+        <section class="page" id="page-categories" data-page="categories">
+          <div class="page-head"><div><h2>Categories</h2><p class="muted">Spending breakdown by category.</p></div></div>
+          <div class="cards-grid cards-grid-3" id="categoryCards"></div>
+          <div class="empty-state" id="categoryEmpty" hidden>
+            <i data-lucide="tags"></i><h4>No categories yet</h4><p>Add transactions to see category breakdown.</p>
+          </div>
+        </section>
+
+        <!-- ============ BUDGETS PAGE ============ -->
+        <section class="page" id="page-budgets" data-page="budgets">
+          <div class="page-head">
+            <div><h2>Budgets</h2><p class="muted">Set monthly budgets and track spending.</p></div>
+            <button class="btn btn-primary" id="addBudgetBtn"><i data-lucide="plus"></i> Set Budget</button>
+          </div>
+          <div class="cards-grid cards-grid-2">
+            <div class="card stat-card balance">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="target"></i></div></div>
+              <p class="stat-label">Total Monthly Budget</p>
+              <h3 class="stat-value" id="totalBudget">₹0</h3>
+            </div>
+            <div class="card stat-card expense">
+              <div class="stat-card__top"><div class="stat-icon"><i data-lucide="wallet"></i></div></div>
+              <p class="stat-label">Spent This Month</p>
+              <h3 class="stat-value" id="budgetSpent">₹0</h3>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>Budget Tracking</h3></div>
+            <div id="budgetList" class="budget-list"></div>
+            <div class="empty-state" id="budgetEmpty" hidden>
+              <i data-lucide="piggy-bank"></i><h4>No budgets set</h4><p>Set a budget to start tracking your spending.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ ANALYTICS PAGE ============ -->
+        <section class="page" id="page-analytics" data-page="analytics">
+          <div class="page-head">
+            <div><h2>Analytics</h2><p class="muted">Deep dive into your financial data.</p></div>
+            <div class="date-filter" id="analyticsDateFilter">
+              <button class="chip" data-range="7d">Last 7 Days</button>
+              <button class="chip active" data-range="30d">Last 30 Days</button>
+              <button class="chip" data-range="month">This Month</button>
+              <button class="chip" data-range="lastmonth">Last Month</button>
+              <button class="chip" data-range="year">This Year</button>
+              <button class="chip" data-range="all">All Time</button>
+            </div>
+          </div>
+          <div class="cards-grid">
+            <div class="card mini-stat">
+              <p class="stat-label">Daily Expenses</p>
+              <h3 class="stat-value" id="anaDaily">₹0</h3>
+            </div>
+            <div class="card mini-stat">
+              <p class="stat-label">Weekly Expenses</p>
+              <h3 class="stat-value" id="anaWeekly">₹0</h3>
+            </div>
+            <div class="card mini-stat">
+              <p class="stat-label">Monthly Expenses</p>
+              <h3 class="stat-value" id="anaMonthly">₹0</h3>
+            </div>
+            <div class="card mini-stat">
+              <p class="stat-label">Avg Daily Spending</p>
+              <h3 class="stat-value" id="anaAvgDaily">₹0</h3>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="card chart-card">
+              <div class="card-head"><h3>Income vs Expenses</h3></div>
+              <div class="chart-wrap"><canvas id="anaIncomeExpenseChart"></canvas></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-head"><h3>Expense by Category</h3></div>
+              <div class="chart-wrap"><canvas id="anaCategoryChart"></canvas></div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="card chart-card">
+              <div class="card-head"><h3>Spending Trend</h3></div>
+              <div class="chart-wrap"><canvas id="anaTrendChart"></canvas></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-head"><h3>Top Categories</h3></div>
+              <div class="chart-wrap"><canvas id="anaTopCategoryChart"></canvas></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ SETTINGS PAGE ============ -->
+        <section class="page" id="page-settings" data-page="settings">
+          <div class="page-head"><div><h2>Settings</h2><p class="muted">Customize your ExpenseFlow experience.</p></div></div>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Appearance</h3></div>
+              <div class="setting-row">
+                <div><span class="setting-label">Theme</span><p class="muted small">Switch between light and dark mode.</p></div>
+                <button class="theme-switch" id="themeSwitch" aria-label="Toggle theme"><span class="theme-switch__thumb"></span></button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Data Management</h3></div>
+              <div class="setting-row">
+                <div><span class="setting-label">Export Data (CSV)</span><p class="muted small">Download all transactions as CSV.</p></div>
+                <button class="btn btn-ghost btn-sm" id="settingsExportBtn"><i data-lucide="download"></i> Export</button>
+              </div>
+              <div class="setting-row">
+                <div><span class="setting-label">Load Sample Data</span><p class="muted small">Reset to demo transactions.</p></div>
+                <button class="btn btn-ghost btn-sm" id="loadSampleBtn"><i data-lucide="database"></i> Load</button>
+              </div>
+              <div class="setting-row danger">
+                <div><span class="setting-label">Clear All Data</span><p class="muted small">Remove all transactions and budgets.</p></div>
+                <button class="btn btn-danger btn-sm" id="clearDataBtn"><i data-lucide="trash-2"></i> Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3>About</h3></div>
+            <p class="muted">ExpenseFlow is a privacy-first personal finance tracker. All your data is stored locally in your browser — nothing is sent to any server.</p>
+            <p class="muted small" style="margin-top:8px">Built with HTML5, CSS3, Vanilla JavaScript &amp; Chart.js.</p>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== Transaction Modal ===== -->
+  <div class="modal-overlay" id="txModal">
+    <div class="modal">
+      <div class="modal__head">
+        <h3 id="txModalTitle">Add Transaction</h3>
+        <button class="icon-btn" id="txModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <form id="txForm" class="modal__body">
+        <input type="hidden" id="txId" />
+        <div class="type-toggle">
+          <button type="button" class="type-btn active" data-type="expense"><i data-lucide="trending-down"></i> Expense</button>
+          <button type="button" class="type-btn" data-type="income"><i data-lucide="trending-up"></i> Income</button>
+        </div>
+        <div class="form-grid">
+          <div class="field full">
+            <label for="txTitle">Title</label>
+            <input type="text" id="txTitle" placeholder="e.g. Grocery shopping" required maxlength="60" />
+          </div>
+          <div class="field">
+            <label for="txAmount">Amount (₹)</label>
+            <input type="number" id="txAmount" placeholder="0.00" step="0.01" min="0" required />
+          </div>
+          <div class="field">
+            <label for="txCategory">Category</label>
+            <select id="txCategory" required></select>
+          </div>
+          <div class="field">
+            <label for="txDate">Date</label>
+            <input type="date" id="txDate" required />
+          </div>
+          <div class="field">
+            <label for="txMethod">Payment Method</label>
+            <select id="txMethod" required>
+              <option value="Cash">Cash</option>
+              <option value="Card">Card</option>
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Wallet">Wallet</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="txDesc">Description (optional)</label>
+            <textarea id="txDesc" rows="2" maxlength="150" placeholder="Add a note..."></textarea>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-ghost" id="txCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="txSaveBtn">Save Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Budget Modal ===== -->
+  <div class="modal-overlay" id="budgetModal">
+    <div class="modal modal-sm">
+      <div class="modal__head">
+        <h3 id="budgetModalTitle">Set Budget</h3>
+        <button class="icon-btn" id="budgetModalClose" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <form id="budgetForm" class="modal__body">
+        <input type="hidden" id="budgetId" />
+        <div class="field">
+          <label for="budgetCategory">Category</label>
+          <select id="budgetCategory" required></select>
+        </div>
+        <div class="field">
+          <label for="budgetAmount">Monthly Limit (₹)</label>
+          <input type="number" id="budgetAmount" placeholder="0.00" step="0.01" min="0" required />
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-ghost" id="budgetCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Budget</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Confirm Modal ===== -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal modal-sm">
+      <div class="modal__head">
+        <h3 id="confirmTitle">Are you sure?</h3>
+      </div>
+      <div class="modal__body">
+        <p id="confirmMsg" class="muted">This action cannot be undone.</p>
+        <div class="modal__footer">
+          <button type="button" class="btn btn-ghost" id="confirmCancel">Cancel</button>
+          <button type="button" class="btn btn-danger" id="confirmOk">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Toast Container ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/script.js" defer></script>
+</body>
+</html>
